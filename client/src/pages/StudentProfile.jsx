@@ -12,13 +12,14 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const StudentProfile = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("basic");
   const [predictionResult, setPredictionResult] = useState(null);
-  const [featureImportance, setFeatureImportance] = useState(null); // 👈 new state
+  const [featureImportance, setFeatureImportance] = useState(null);
   const [loadingPrediction, setLoadingPrediction] = useState(false);
 
   useEffect(() => {
@@ -33,7 +34,6 @@ const StudentProfile = () => {
     fetchUser();
   }, [id]);
 
-  // 🧠 Predict Depression
   const predictDepression = async () => {
     setLoadingPrediction(true);
     setPredictionResult(null);
@@ -64,9 +64,13 @@ const StudentProfile = () => {
     }
   };
 
-  if (!user) return <p className="text-center mt-5">Loading...</p>;
+  if (!user)
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" role="status"></div>
+      </div>
+    );
 
-  // Generate circular avatar with initials
   const generateAvatar = (name) => {
     const initials = name
       .split(" ")
@@ -75,89 +79,211 @@ const StudentProfile = () => {
       .toUpperCase();
     return (
       <div
-        className="bg-primary text-white rounded-circle d-flex justify-content-center align-items-center mx-auto shadow"
-        style={{ width: "120px", height: "120px", fontSize: "40px" }}
+        className="rounded-circle d-flex justify-content-center align-items-center mx-auto shadow-lg"
+        style={{
+          width: "130px",
+          height: "130px",
+          fontSize: "42px",
+          background: "linear-gradient(135deg, #6f42c1, #007bff)",
+          color: "white",
+          fontWeight: "bold",
+        }}
       >
         {initials}
       </div>
     );
   };
 
-  // Prepare data for bar chart
   const chartData =
     featureImportance &&
     Object.entries(featureImportance).map(([key, value]) => ({
-      name: key.replace(/_/g, " "), // prettify labels
+      name: key.replace(/_/g, " "),
       value: value,
     }));
 
   return (
-    <div className="container mt-5">
-      <h3 className="mb-4 text-center">Student Profile</h3>
-      <div className="card shadow-lg p-4 rounded-4">
+    <div
+      className="container mt-5 pb-5"
+      style={{
+        background: "linear-gradient(180deg, #f8f9ff, #eef2ff)",
+        borderRadius: "16px",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+      }}
+    >
+      <h3 className="text-center fw-bold py-4 text-primary">
+        <i className="bi bi-person-circle me-2"></i>Student Profile
+      </h3>
+
+      <div
+        className="card border-0 shadow-lg rounded-4 p-4"
+        style={{ background: "white" }}
+      >
         {generateAvatar(user.userId.username)}
 
-        <ul className="nav nav-tabs mt-4 mb-3">
+        <ul className="nav nav-pills justify-content-center gap-2 mt-4 mb-3">
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "basic" ? "active" : ""}`}
+              className={`nav-link px-4 py-2 ${
+                activeTab === "basic" ? "active" : ""
+              }`}
+              style={{
+                borderRadius: "20px",
+                fontWeight: "500",
+              }}
               onClick={() => setActiveTab("basic")}
             >
-              Basic Details
+              <i className="bi bi-info-circle me-1"></i> Basic Details
             </button>
           </li>
           <li className="nav-item">
             <button
-              className={`nav-link ${activeTab === "mental" ? "active" : ""}`}
+              className={`nav-link px-4 py-2 ${
+                activeTab === "mental" ? "active" : ""
+              }`}
+              style={{
+                borderRadius: "20px",
+                fontWeight: "500",
+              }}
               onClick={() => setActiveTab("mental")}
             >
-              Mental Health
+              <i className="bi bi-brain me-1"></i> Mental Health
             </button>
           </li>
         </ul>
 
+        {/* --- Basic Info Section --- */}
         {activeTab === "basic" && (
-          <div className="text-center">
-            <h5 className="fw-bold mb-2">Name: {user.userId.username}</h5>
-            <p className="text-muted mb-1">Phone: {user.userId.phone}</p>
-            <p className="text-muted mb-1">Email: {user.userId.email}</p>
-            <p>Age: {user.age}</p>
-            <p>Gender: {user.gender}</p>
-            <p>Course: {user.course}</p>
-            <p>Year: {user.year}</p>
+          <div className="text-center mt-3">
+            <h5 className="fw-bold mb-2 text-dark">{user.userId.username}</h5>
+            <p className="text-muted mb-1">
+              <i className="bi bi-telephone me-2 text-primary"></i>
+              {user.userId.phone}
+            </p>
+            <p className="text-muted mb-1">
+              <i className="bi bi-envelope me-2 text-primary"></i>
+              {user.userId.email}
+            </p>
+            <div className="row mt-4 justify-content-center">
+              <div className="col-md-4 mb-3">
+                <div className="p-3 bg-light rounded shadow-sm">
+                  <strong>Age:</strong> {user.age}
+                </div>
+              </div>
+              <div className="col-md-4 mb-3">
+                <div className="p-3 bg-light rounded shadow-sm">
+                  <strong>Gender:</strong> {user.gender}
+                </div>
+              </div>
+              <div className="col-md-4 mb-3">
+                <div className="p-3 bg-light rounded shadow-sm">
+                  <strong>Course:</strong> {user.course}
+                </div>
+              </div>
+              <div className="col-md-4 mb-3">
+                <div className="p-3 bg-light rounded shadow-sm">
+                  <strong>Year:</strong> {user.year}
+                </div>
+              </div>
+            </div>
           </div>
         )}
 
+        {/* --- Mental Health Section --- */}
         {activeTab === "mental" && (
-          <div className="mt-3">
-            <p>Age: {user.age}</p>
-            <p>Gender: {user.gender}</p>
-            <p>Course: {user.course}</p>
-            <p>Year: {user.year}</p>
-            <p>CGPA: {user.cgpa}</p>
-            <p>Marital Status: {user.marital}</p>
-            <p>Anxiety: {user.anxiety ? "Yes" : "No"}</p>
-            <p>Panic: {user.panic ? "Yes" : "No"}</p>
-            <p>Treatment: {user.treatment ? "Yes" : "No"}</p>
+          <div className="mt-4">
+            <div className="row gy-2">
+              <div className="col-md-6">
+                <p>
+                  <strong>Age:</strong> {user.age}
+                </p>
+              </div>
+              <div className="col-md-6">
+                <p>
+                  <strong>Gender:</strong> {user.gender}
+                </p>
+              </div>
 
-            <button
-              className="btn btn-primary mt-3"
-              onClick={predictDepression}
-              disabled={loadingPrediction}
-            >
-              {loadingPrediction ? "Predicting..." : "Predict Depression"}
-            </button>
+              <div className="col-md-6">
+                <p>
+                  <strong>Course:</strong> {user.course}
+                </p>
+              </div>
+              <div className="col-md-6">
+                <p>
+                  <strong>Year:</strong> {user.year}
+                </p>
+              </div>
+
+              <div className="col-md-6">
+                <p>
+                  <strong>CGPA:</strong> {user.cgpa}
+                </p>
+              </div>
+              <div className="col-md-6">
+                <p>
+                  <strong>Marital Status:</strong> {user.marital}
+                </p>
+              </div>
+              <div className="col-md-6">
+                <p>
+                  <strong>Anxiety:</strong> {user.anxiety ? "Yes" : "No"}
+                </p>
+              </div>
+              <div className="col-md-6">
+                <p>
+                  <strong>Panic Attack:</strong> {user.panic ? "Yes" : "No"}
+                </p>
+              </div>
+              <div className="col-md-6">
+                <p>
+                  <strong>Treatment:</strong> {user.treatment ? "Yes" : "No"}
+                </p>
+              </div>
+            </div>
+
+            <div className="text-center mt-4">
+              <button
+                className="btn btn-gradient-primary px-4 py-2"
+                style={{
+                  background: "linear-gradient(90deg, #6f42c1, #007bff)",
+                  color: "white",
+                  borderRadius: "25px",
+                  transition: "all 0.3s ease",
+                }}
+                onClick={predictDepression}
+                disabled={loadingPrediction}
+              >
+                {loadingPrediction ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                    ></span>
+                    Predicting...
+                  </>
+                ) : (
+                  <>
+                    <i className="bi bi-activity me-2"></i> Predict Depression
+                  </>
+                )}
+              </button>
+            </div>
 
             {predictionResult && (
-              <div className="alert alert-info mt-3 text-center">
+              <div
+                className="alert alert-info mt-4 text-center shadow-sm rounded-3"
+                style={{ fontWeight: "500", fontSize: "1.1rem" }}
+              >
+                <i className="bi bi-bar-chart-line-fill me-2"></i>
                 <strong>Prediction:</strong> {predictionResult}
               </div>
             )}
 
-            {/* 🎯 SHAP Explanation Chart */}
             {featureImportance && (
               <div className="mt-4">
-                <h5 className="text-center">Factors Affecting Depression</h5>
+                <h5 className="text-center text-primary fw-bold mb-3">
+                  Factors Affecting Depression
+                </h5>
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart
                     data={chartData}
@@ -173,13 +299,14 @@ const StudentProfile = () => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    <Bar dataKey="value" fill="#8884d8" />
+                    <Bar dataKey="value" fill="#6f42c1" radius={[5, 5, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
-
-                <p className="text-muted small text-center">
-                  Positive values ↑ increase depression risk, Negative values ↓
-                  decrease it
+                <p className="text-muted small text-center mt-2">
+                  <i className="bi bi-arrow-up-circle text-success"></i>{" "}
+                  Positive values increase depression risk |
+                  <i className="bi bi-arrow-down-circle text-danger ms-2"></i>{" "}
+                  Negative values decrease it
                 </p>
               </div>
             )}
