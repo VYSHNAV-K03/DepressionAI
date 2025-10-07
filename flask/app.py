@@ -2,6 +2,7 @@ import pickle
 import numpy as np
 from flask import Flask, request, jsonify
 from flask_cors import CORS
+import shap
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -35,7 +36,26 @@ def predict():
     prediction = model.predict(input_scaled)[0]
     
     result = "Depressed" if prediction == 1 else "Not Depressed"
-    return jsonify({"prediction": result})
+
+     # === SHAP Explainability ===
+    explainer = shap.Explainer(model)
+    shap_values = explainer(input_scaled)
+    shap_contributions = shap_values.values[0]
+
+    feature_impact = {
+        columns[i]: float(np.sum(shap_contributions[i])) for i in range(len(columns))
+    }
+
+    # Sort by absolute importance (optional)
+    feature_impact_sorted = dict(
+        sorted(feature_impact.items(), key=lambda x: abs(x[1]), reverse=True)
+    )
+
+    return jsonify({
+        "prediction": result,
+        "feature_importance": feature_impact_sorted
+    })
+
 
 if __name__ == "__main__":
     app.run(debug=True)

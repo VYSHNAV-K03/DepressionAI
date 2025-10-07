@@ -2,13 +2,24 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { apiUrl } from "../axiosInstance";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
 
 const StudentProfile = () => {
   const { id } = useParams();
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("basic");
-  const [predictionResult, setPredictionResult] = useState(null); // 👈 new state
-  const [loadingPrediction, setLoadingPrediction] = useState(false); // 👈 optional loader
+  const [predictionResult, setPredictionResult] = useState(null);
+  const [featureImportance, setFeatureImportance] = useState(null); // 👈 new state
+  const [loadingPrediction, setLoadingPrediction] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -26,6 +37,8 @@ const StudentProfile = () => {
   const predictDepression = async () => {
     setLoadingPrediction(true);
     setPredictionResult(null);
+    setFeatureImportance(null);
+
     try {
       const response = await axios.post("http://localhost:5000/predict", {
         Age: user.age,
@@ -42,6 +55,7 @@ const StudentProfile = () => {
       });
 
       setPredictionResult(response.data.prediction);
+      setFeatureImportance(response.data.feature_importance);
     } catch (error) {
       console.error("Prediction error:", error);
       setPredictionResult("Error in prediction");
@@ -68,6 +82,14 @@ const StudentProfile = () => {
       </div>
     );
   };
+
+  // Prepare data for bar chart
+  const chartData =
+    featureImportance &&
+    Object.entries(featureImportance).map(([key, value]) => ({
+      name: key.replace(/_/g, " "), // prettify labels
+      value: value,
+    }));
 
   return (
     <div className="container mt-5">
@@ -127,8 +149,38 @@ const StudentProfile = () => {
             </button>
 
             {predictionResult && (
-              <div className="alert alert-info mt-3">
+              <div className="alert alert-info mt-3 text-center">
                 <strong>Prediction:</strong> {predictionResult}
+              </div>
+            )}
+
+            {/* 🎯 SHAP Explanation Chart */}
+            {featureImportance && (
+              <div className="mt-4">
+                <h5 className="text-center">Factors Affecting Depression</h5>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart
+                    data={chartData}
+                    margin={{ top: 10, right: 30, left: 0, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="name"
+                      angle={-30}
+                      textAnchor="end"
+                      interval={0}
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar dataKey="value" fill="#8884d8" />
+                  </BarChart>
+                </ResponsiveContainer>
+
+                <p className="text-muted small text-center">
+                  Positive values ↑ increase depression risk, Negative values ↓
+                  decrease it
+                </p>
               </div>
             )}
           </div>
