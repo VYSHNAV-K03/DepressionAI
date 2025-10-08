@@ -1,28 +1,29 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const [user, setuser] = useState(JSON.parse(localStorage.getItem("user")));
-
-  // Check if token exists in localStorage
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem("user")));
   const isLoggedIn = !!localStorage.getItem("token");
 
   const handleLogout = () => {
-    // Remove token from localStorage
     localStorage.removeItem("token");
     localStorage.removeItem("user");
-
-    // Navigate to the home page or login page
     navigate("/login");
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-light bg-light">
-      <div className="container-fluid">
-        <Link className="navbar-brand" to="/">
-          DepressionAI
+    <nav
+      className="navbar navbar-expand-lg navbar-dark shadow-sm sticky-top"
+      style={{ backgroundColor: "#2C3E50" }}
+    >
+      <div className="container-fluid px-4">
+        <Link className="navbar-brand fw-bold fs-4 text-uppercase" to="/">
+          <span style={{ color: "#00B894" }}>Depression</span>
+          <span style={{ color: "#fff" }}>AI</span>
         </Link>
+
         <button
           className="navbar-toggler"
           type="button"
@@ -34,46 +35,69 @@ const Navbar = () => {
         >
           <span className="navbar-toggler-icon"></span>
         </button>
-        <div className="collapse navbar-collapse" id="navbarNav">
-          <ul className="navbar-nav ms-auto">
-            <li className="nav-item">
-              <Link className="nav-link" to="/">
+
+        <div
+          className="collapse navbar-collapse justify-content-end"
+          id="navbarNav"
+        >
+          <ul className="navbar-nav align-items-lg-center">
+            <li className="nav-item mx-2">
+              <Link className="nav-link text-light fw-semibold" to="/">
                 Home
               </Link>
             </li>
 
-            {/* <li className="nav-item">
-              <Link className="nav-link" to="/profile">Profile</Link>
-            </li> */}
             {isLoggedIn ? (
               <>
-                {user.role === "admin" && (
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/admin">
+                {user?.role === "admin" && (
+                  <li className="nav-item mx-2">
+                    <Link
+                      className="nav-link text-light fw-semibold"
+                      to="/admin"
+                    >
                       Admin Panel
                     </Link>
                   </li>
                 )}
-                {user.role === "doctor" && (
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/dashboard">
-                      Dashboard
-                    </Link>
-                  </li>
+
+                {user?.role === "patient" && (
+                  <>
+                    <li className="nav-item mx-2">
+                      <Link
+                        className="nav-link text-light fw-semibold"
+                        to="/patient"
+                      >
+                        Dashboard
+                      </Link>
+                    </li>
+                    <li className="nav-item mx-2">
+                      <Link
+                        className="nav-link text-light fw-semibold"
+                        to="/profile"
+                      >
+                        Profile
+                      </Link>
+                    </li>
+                  </>
                 )}
 
-                {user.role === "user" && (
-                  <li className="nav-item">
-                    <Link className="nav-link" to="/patient">
-                      Patient
-                    </Link>
-                  </li>
-                )}
-
-                <li className="nav-item">
+                <li className="nav-item mx-2">
                   <button
-                    className="btn btn-link nav-link"
+                    className="btn btn-outline-light px-3 py-1 rounded-pill fw-semibold"
                     onClick={handleLogout}
+                    style={{
+                      transition: "0.3s",
+                      borderColor: "#00B894",
+                      color: "#00B894",
+                    }}
+                    onMouseOver={(e) => {
+                      e.target.style.backgroundColor = "#00B894";
+                      e.target.style.color = "#fff";
+                    }}
+                    onMouseOut={(e) => {
+                      e.target.style.backgroundColor = "transparent";
+                      e.target.style.color = "#00B894";
+                    }}
                   >
                     Logout
                   </button>
@@ -81,13 +105,24 @@ const Navbar = () => {
               </>
             ) : (
               <>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/register">
+                <li className="nav-item mx-2">
+                  <Link
+                    className="btn btn-outline-light rounded-pill px-3 py-1"
+                    to="/register"
+                  >
                     Register
                   </Link>
                 </li>
-                <li className="nav-item">
-                  <Link className="nav-link" to="/login">
+                <li className="nav-item mx-2">
+                  <Link
+                    className="btn rounded-pill px-3 py-1"
+                    style={{
+                      backgroundColor: "#00B894",
+                      color: "#fff",
+                      fontWeight: "600",
+                    }}
+                    to="/login"
+                  >
                     Login
                   </Link>
                 </li>

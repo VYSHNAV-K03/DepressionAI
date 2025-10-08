@@ -332,7 +332,18 @@ const Patient = () => {
           </div>
 
           <div className="text-center">
-            <button type="submit" className="btn btn-primary px-4">
+            <button
+              type="submit"
+              className="btn btn-primary px-4"
+              style={{
+                backgroundColor: "#00B894",
+                color: "#fff",
+                borderRadius: "25px",
+                fontWeight: "600",
+                border: "none",
+                padding: "8px 20px",
+              }}
+            >
               Submit
             </button>
           </div>

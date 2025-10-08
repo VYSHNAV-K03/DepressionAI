@@ -54,8 +54,16 @@ const StudentProfile = () => {
           : "No",
       });
 
-      setPredictionResult(response.data.prediction);
-      setFeatureImportance(response.data.feature_importance);
+      const prediction = response.data.prediction;
+      const feature_importance = response.data.feature_importance;
+
+      await axios.put(`${apiUrl}api/counsellor/predict/${user._id}`, {
+        predictionResult: prediction,
+        featureImportance: feature_importance,
+      });
+
+      setPredictionResult(prediction);
+      setFeatureImportance(feature_importance);
     } catch (error) {
       console.error("Prediction error:", error);
       setPredictionResult("Error in prediction");
@@ -106,8 +114,8 @@ const StudentProfile = () => {
       className="container mt-5 pb-5"
       style={{
         background: "linear-gradient(180deg, #f8f9ff, #eef2ff)",
-        borderRadius: "16px",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+        borderRadius: "20px",
+        boxShadow: "0 8px 25px rgba(0,0,0,0.1)",
       }}
     >
       <h3 className="text-center fw-bold py-4 text-primary">
@@ -116,10 +124,15 @@ const StudentProfile = () => {
 
       <div
         className="card border-0 shadow-lg rounded-4 p-4"
-        style={{ background: "white" }}
+        style={{
+          background: "white",
+          borderRadius: "20px",
+          transition: "all 0.3s ease",
+        }}
       >
         {generateAvatar(user.userId.username)}
 
+        {/* Tabs */}
         <ul className="nav nav-pills justify-content-center gap-2 mt-4 mb-3">
           <li className="nav-item">
             <button
@@ -127,8 +140,14 @@ const StudentProfile = () => {
                 activeTab === "basic" ? "active" : ""
               }`}
               style={{
-                borderRadius: "20px",
+                borderRadius: "25px",
                 fontWeight: "500",
+                background:
+                  activeTab === "basic"
+                    ? "linear-gradient(90deg, #6f42c1, #007bff)"
+                    : "#f0f2ff",
+                color: activeTab === "basic" ? "white" : "#6f42c1",
+                transition: "all 0.3s ease",
               }}
               onClick={() => setActiveTab("basic")}
             >
@@ -141,8 +160,14 @@ const StudentProfile = () => {
                 activeTab === "mental" ? "active" : ""
               }`}
               style={{
-                borderRadius: "20px",
+                borderRadius: "25px",
                 fontWeight: "500",
+                background:
+                  activeTab === "mental"
+                    ? "linear-gradient(90deg, #6f42c1, #007bff)"
+                    : "#f0f2ff",
+                color: activeTab === "mental" ? "white" : "#6f42c1",
+                transition: "all 0.3s ease",
               }}
               onClick={() => setActiveTab("mental")}
             >
@@ -164,26 +189,25 @@ const StudentProfile = () => {
               {user.userId.email}
             </p>
             <div className="row mt-4 justify-content-center">
-              <div className="col-md-4 mb-3">
-                <div className="p-3 bg-light rounded shadow-sm">
-                  <strong>Age:</strong> {user.age}
+              {[
+                ["Age", user.age],
+                ["Gender", user.gender],
+                ["Course", user.course],
+                ["Year", user.year],
+              ].map(([label, value], i) => (
+                <div key={i} className="col-md-4 mb-3">
+                  <div
+                    className="p-3 rounded shadow-sm"
+                    style={{
+                      background: "#f8f9ff",
+                      color: "#333",
+                      fontWeight: "500",
+                    }}
+                  >
+                    <strong>{label}:</strong> {value}
+                  </div>
                 </div>
-              </div>
-              <div className="col-md-4 mb-3">
-                <div className="p-3 bg-light rounded shadow-sm">
-                  <strong>Gender:</strong> {user.gender}
-                </div>
-              </div>
-              <div className="col-md-4 mb-3">
-                <div className="p-3 bg-light rounded shadow-sm">
-                  <strong>Course:</strong> {user.course}
-                </div>
-              </div>
-              <div className="col-md-4 mb-3">
-                <div className="p-3 bg-light rounded shadow-sm">
-                  <strong>Year:</strong> {user.year}
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
@@ -192,28 +216,6 @@ const StudentProfile = () => {
         {activeTab === "mental" && (
           <div className="mt-4">
             <div className="row gy-2">
-              <div className="col-md-6">
-                <p>
-                  <strong>Age:</strong> {user.age}
-                </p>
-              </div>
-              <div className="col-md-6">
-                <p>
-                  <strong>Gender:</strong> {user.gender}
-                </p>
-              </div>
-
-              <div className="col-md-6">
-                <p>
-                  <strong>Course:</strong> {user.course}
-                </p>
-              </div>
-              <div className="col-md-6">
-                <p>
-                  <strong>Year:</strong> {user.year}
-                </p>
-              </div>
-
               <div className="col-md-6">
                 <p>
                   <strong>CGPA:</strong> {user.cgpa}
@@ -243,13 +245,21 @@ const StudentProfile = () => {
 
             <div className="text-center mt-4">
               <button
-                className="btn btn-gradient-primary px-4 py-2"
+                className="btn px-4 py-2"
                 style={{
                   background: "linear-gradient(90deg, #6f42c1, #007bff)",
                   color: "white",
-                  borderRadius: "25px",
+                  borderRadius: "30px",
+                  fontWeight: "500",
+                  boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
                   transition: "all 0.3s ease",
                 }}
+                onMouseEnter={(e) =>
+                  (e.target.style.boxShadow = "0 6px 18px rgba(0,0,0,0.3)")
+                }
+                onMouseLeave={(e) =>
+                  (e.target.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)")
+                }
                 onClick={predictDepression}
                 disabled={loadingPrediction}
               >
@@ -272,7 +282,12 @@ const StudentProfile = () => {
             {predictionResult && (
               <div
                 className="alert alert-info mt-4 text-center shadow-sm rounded-3"
-                style={{ fontWeight: "500", fontSize: "1.1rem" }}
+                style={{
+                  background: "#f0f4ff",
+                  color: "#0056b3",
+                  fontWeight: "500",
+                  fontSize: "1.1rem",
+                }}
               >
                 <i className="bi bi-bar-chart-line-fill me-2"></i>
                 <strong>Prediction:</strong> {predictionResult}

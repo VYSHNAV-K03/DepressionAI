@@ -7,10 +7,10 @@ import Navbar from "./components/Navbar";
 import "bootstrap/dist/css/bootstrap.min.css";
 import DoctorRegisterPage from "./pages/CounsellorRegisterPage";
 import AdminPanel from "./pages/Admin";
-import Profile from "./pages/Profile";
 import Patient from "./pages/Patient";
 import Counsellor from "./pages/Counsellor";
 import StudentProfile from "./pages/StudentProfile";
+import MyProfile from "./pages/Profile";
 
 const App = () => {
   return (
@@ -27,7 +27,7 @@ const App = () => {
 
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/patient" element={<Patient />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<MyProfile />} />
         </Routes>
       </div>
     </Router>

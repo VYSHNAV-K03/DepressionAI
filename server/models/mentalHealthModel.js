@@ -11,6 +11,8 @@ const formSchema = new mongoose.Schema({
   anxiety: String,
   panic: String,
   treatment: String,
+  predictionResult: { type: String }, // 🆕 to store model output
+  featureImportance: { type: Object }, // 🆕 to store shap or feature impact values
   createdAt: { type: Date, default: Date.now },
 });
 
