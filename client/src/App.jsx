@@ -11,6 +11,7 @@ import Patient from "./pages/Patient";
 import Counsellor from "./pages/Counsellor";
 import StudentProfile from "./pages/StudentProfile";
 import MyProfile from "./pages/Profile";
+import Appointment from "./pages/Appointment";
 
 const App = () => {
   return (
@@ -28,6 +29,7 @@ const App = () => {
           <Route path="/admin" element={<AdminPanel />} />
           <Route path="/patient" element={<Patient />} />
           <Route path="/profile" element={<MyProfile />} />
+          <Route path="/appointment" element={<Appointment />} />
         </Routes>
       </div>
     </Router>

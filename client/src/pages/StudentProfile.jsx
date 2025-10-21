@@ -57,6 +57,8 @@ const StudentProfile = () => {
       const prediction = response.data.prediction;
       const feature_importance = response.data.feature_importance;
 
+      console.log(feature_importance);
+
       await axios.put(`${apiUrl}api/counsellor/predict/${user._id}`, {
         predictionResult: prediction,
         featureImportance: feature_importance,
@@ -104,10 +106,15 @@ const StudentProfile = () => {
 
   const chartData =
     featureImportance &&
-    Object.entries(featureImportance).map(([key, value]) => ({
-      name: key.replace(/_/g, " "),
-      value: value,
-    }));
+    (() => {
+      const entries = Object.entries(featureImportance);
+      const maxValue = Math.max(...entries.map(([_, v]) => Math.abs(v)));
+
+      return entries.map(([key, value]) => ({
+        name: key.replace(/_/g, " "),
+        value: parseFloat(((value / maxValue) * 100).toFixed(2)), // scale 0–100%
+      }));
+    })();
 
   return (
     <div
@@ -228,17 +235,17 @@ const StudentProfile = () => {
               </div>
               <div className="col-md-6">
                 <p>
-                  <strong>Anxiety:</strong> {user.anxiety ? "Yes" : "No"}
+                  <strong>Anxiety:</strong> {user.anxiety}
                 </p>
               </div>
               <div className="col-md-6">
                 <p>
-                  <strong>Panic Attack:</strong> {user.panic ? "Yes" : "No"}
+                  <strong>Panic Attack:</strong> {user.panic}
                 </p>
               </div>
               <div className="col-md-6">
                 <p>
-                  <strong>Treatment:</strong> {user.treatment ? "Yes" : "No"}
+                  <strong>Treatment:</strong> {user.treatment}
                 </p>
               </div>
             </div>
@@ -311,7 +318,13 @@ const StudentProfile = () => {
                       textAnchor="end"
                       interval={0}
                     />
-                    <YAxis />
+                    <YAxis
+                      label={{
+                        value: "Relative Importance (%)",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
                     <Tooltip />
                     <Legend />
                     <Bar dataKey="value" fill="#6f42c1" radius={[5, 5, 0, 0]} />

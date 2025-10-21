@@ -21,10 +21,10 @@ const Patient = () => {
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
   };
+  console.log(formData);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(formData);
 
     try {
       const userId = user?.id;

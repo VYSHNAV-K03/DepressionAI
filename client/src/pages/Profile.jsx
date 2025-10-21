@@ -12,12 +12,15 @@ import {
   Legend,
 } from "recharts";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { useNavigate } from "react-router-dom";
 
 const MyProfile = () => {
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("basic");
   const [featureImportance, setFeatureImportance] = useState(null);
   const [predictionResult, setPredictionResult] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const navigate = useNavigate();
 
   // 🔹 Replace this with your actual auth method (localStorage, context, etc.)
   const loggedInuser = JSON.parse(localStorage.getItem("user"));
@@ -71,10 +74,15 @@ const MyProfile = () => {
 
   const chartData =
     featureImportance &&
-    Object.entries(featureImportance).map(([key, value]) => ({
-      name: key.replace(/_/g, " "),
-      value: value,
-    }));
+    (() => {
+      const entries = Object.entries(featureImportance);
+      const maxValue = Math.max(...entries.map(([_, v]) => Math.abs(v)));
+
+      return entries.map(([key, value]) => ({
+        name: key.replace(/_/g, " "),
+        value: parseFloat(((value / maxValue) * 100).toFixed(2)), // scale 0–100%
+      }));
+    })();
 
   return (
     <div
@@ -201,17 +209,17 @@ const MyProfile = () => {
               </div>
               <div className="col-md-6">
                 <p>
-                  <strong>Anxiety:</strong> {user.anxiety ? "Yes" : "No"}
+                  <strong>Anxiety:</strong> {user.anxiety}
                 </p>
               </div>
               <div className="col-md-6">
                 <p>
-                  <strong>Panic Attack:</strong> {user.panic ? "Yes" : "No"}
+                  <strong>Panic Attack:</strong> {user.panic}
                 </p>
               </div>
               <div className="col-md-6">
                 <p>
-                  <strong>Treatment:</strong> {user.treatment ? "Yes" : "No"}
+                  <strong>Treatment:</strong> {user.treatment}
                 </p>
               </div>
             </div>
@@ -245,7 +253,14 @@ const MyProfile = () => {
                       textAnchor="end"
                       interval={0}
                     />
-                    <YAxis />
+                    <YAxis
+                      label={{
+                        value: "Relative Importance (%)",
+                        angle: -90,
+                        position: "insideLeft",
+                      }}
+                    />
+
                     <Tooltip />
                     <Legend />
                     <Bar dataKey="value" fill="#6f42c1" radius={[5, 5, 0, 0]} />
@@ -257,11 +272,65 @@ const MyProfile = () => {
                   <i className="bi bi-arrow-down-circle text-danger ms-2"></i>{" "}
                   Negative values decrease it
                 </p>
+                <div className="text-center mt-4">
+                  <button
+                    className="btn btn-primary px-4 py-2 rounded-pill shadow-sm"
+                    onClick={() => setShowModal(true)}
+                  >
+                    <i className="bi bi-calendar-check me-2"></i> Book
+                    Appointment
+                  </button>
+                </div>
               </div>
             )}
           </div>
         )}
       </div>
+      {/* Custom Modal */}
+      {showModal && (
+        <div
+          className="modal fade show d-block"
+          tabIndex="-1"
+          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content rounded-4 shadow-lg border-0">
+              <div className="modal-header border-0">
+                <h5 className="modal-title text-primary fw-bold">
+                  <i className="bi bi-calendar-event me-2"></i>Appointment
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body text-center">
+                <p className="fs-5 mb-3">
+                  Do you want to view or book your appointment?
+                </p>
+              </div>
+              <div className="modal-footer d-flex justify-content-center border-0">
+                <button
+                  className="btn btn-outline-secondary px-4 rounded-pill"
+                  onClick={() => setShowModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-primary px-4 rounded-pill"
+                  onClick={() => {
+                    setShowModal(false);
+                    navigate("/appointment"); // 👈 Redirect to appointment page
+                  }}
+                >
+                  Go to Appointment
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
